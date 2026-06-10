@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ArrowUpRight, CalendarDays, DollarSign, FilePieChart, ListChecks, Users } from 'lucide-react';
+import { ArrowUpRight, CalendarDays, DollarSign, FileChartPie as FilePieChart, ListChecks, Users } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -37,7 +37,7 @@ function statusClass(status: 'valid' | 'warning' | 'expired') {
   return 'bg-emerald-100 text-emerald-700';
 }
 
-function normalizeStatus(status: ReminderStatusFilter) {
+function normalizeStatus(status: ReminderStatusFilter): 'pending' | 'read' | 'archived' | undefined {
   if (status === 'Pending') return 'pending';
   if (status === 'Read') return 'read';
   if (status === 'Archived') return 'archived';

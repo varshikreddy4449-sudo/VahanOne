@@ -43,8 +43,8 @@ export function Profit() {
 
     try {
       const [dailyResponse, monthlyResponse] = await Promise.all([
-        fetchVehicleDailyProfit(vehicleId, { page: 1, page_size: 200 }),
-        fetchVehicleMonthlyProfit(vehicleId, { page: 1, page_size: 200 }),
+        fetchVehicleDailyProfit(vehicleId, { startDate, endDate }),
+        fetchVehicleMonthlyProfit(vehicleId, { year: undefined }),
       ]);
       setDailyProfits(dailyResponse);
       setMonthlyProfits(monthlyResponse);
@@ -77,10 +77,10 @@ export function Profit() {
         setSelectedVehicleId(defaultVehicle);
       }
 
-      const profitResponses: TripProfit[] = await Promise.all(
+      const profitResponses = await Promise.all(
         tripsResponse.map((trip: Trip) => fetchTripProfit(trip.id)),
       );
-      setTripProfits(profitResponses);
+      setTripProfits(profitResponses.filter((p): p is TripProfit => p !== null));
 
       if (defaultVehicle) {
         await loadVehicleProfit(defaultVehicle, false);

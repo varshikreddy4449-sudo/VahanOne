@@ -36,8 +36,8 @@ export function Calendar() {
         thirtyDaysLater.setDate(now.getDate() + 30);
 
         const results = await fetchCalendarEvents({
-          start_date: now.toISOString(),
-          end_date: thirtyDaysLater.toISOString(),
+          startDate: now.toISOString(),
+          endDate: thirtyDaysLater.toISOString(),
         });
         setEvents(results);
       } catch {
