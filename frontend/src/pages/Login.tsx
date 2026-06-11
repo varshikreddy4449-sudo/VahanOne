@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/authService';
+import { setAuthenticated } from '../hooks/useAuth';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
@@ -17,17 +17,14 @@ export function Login() {
     setError('');
     setLoading(true);
 
-    try {
-      await login({
-        email,
-        password,
-      });
+    // Simple local auth: accept any non-empty email/password
+    if (email.trim() && password.trim()) {
+      setAuthenticated(true);
       navigate('/dashboard');
-    } catch (err) {
-      setError('Invalid email or password. Please try again.');
-    } finally {
-      setLoading(false);
+    } else {
+      setError('Please enter your email and password.');
     }
+    setLoading(false);
   }
 
   return (
@@ -38,7 +35,7 @@ export function Login() {
           <p className="mt-2 text-sm text-slate-500">Access fleet finance, bookings, and profit analytics.</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
+          <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">Email</label>
             <Input value={email} onChange={(event) => setEmail(event.target.value)} type="email" placeholder="name@company.com" required />
           </div>

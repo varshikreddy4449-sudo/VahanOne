@@ -1,40 +1,38 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+
+const AUTH_KEY = 'vahanone_auth';
 
 export function useAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem(AUTH_KEY) === 'true';
+  });
+  const [accessToken, setAccessToken] = useState<string | null>(() => {
+    return localStorage.getItem(AUTH_KEY) === 'true' ? 'local-session' : null;
+  });
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setIsAuthenticated(!!data.session);
-      if (data.session) {
-        setAccessToken(data.session.access_token);
-      }
-      setIsLoading(false);
+    const handler = () => {
+      const authed = localStorage.getItem(AUTH_KEY) === 'true';
+      setIsAuthenticated(authed);
+      setAccessToken(authed ? 'local-session' : null);
     };
-
-    checkSession();
-
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
-      if (session) {
-        setAccessToken(session.access_token);
-      } else {
-        setAccessToken(null);
-      }
-    });
-
-    return () => {
-      listener?.subscription?.unsubscribe();
-    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
   }, []);
 
   return {
     isAuthenticated,
-    isLoading,
+    isLoading: false,
     accessToken,
   };
+}
+
+export function setAuthenticated(value: boolean) {
+  localStorage.setItem(AUTH_KEY, String(value));
+  window.dispatchEvent(new Event('storage'));
+}
+
+export function clearAuth() {
+  localStorage.removeItem(AUTH_KEY);
+  window.dispatchEvent(new Event('storage'));
 }

@@ -26,6 +26,7 @@ export function setAccessToken(token: string) {
 export function clearAuthStorage() {
   window.localStorage.removeItem(ACCESS_TOKEN_KEY);
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+  window.localStorage.removeItem('vahanone_auth');
 }
 
 export function logout() {
