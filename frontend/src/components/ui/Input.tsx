@@ -7,7 +7,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export function Input({ className, icon: Icon, ...props }: InputProps) {
   const inputClasses = cn(
-    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 shadow-sm placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200',
+    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 shadow-sm placeholder:text-slate-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100 disabled:bg-slate-50 disabled:text-slate-500',
     Icon ? 'pl-11' : '',
     className,
   );

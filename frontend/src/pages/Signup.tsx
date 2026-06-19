@@ -1,36 +1,43 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth, signIn, signInWithGoogle, resetPassword } from '../hooks/useAuth';
+import { signUp, signInWithGoogle } from '../hooks/useAuth';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
-import { Loader as Loader2, Mail, Lock, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react';
+import { Loader as Loader2, User, Mail, Lock, Building2, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react';
 
-export function Login() {
+export function Signup() {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-
-  if (isAuthenticated) {
-    navigate('/dashboard', { replace: true });
-    return null;
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await signIn(email, password);
-      navigate('/dashboard');
+      await signUp(email, password, fullName, companyName);
+      setEmailSent(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to sign in';
+      const message = err instanceof Error ? err.message : 'Failed to create account';
       setError(message);
     } finally {
       setLoading(false);
@@ -50,24 +57,7 @@ export function Login() {
     }
   }
 
-  async function handleForgotPassword(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      await resetPassword(email);
-      setResetEmailSent(true);
-      setShowForgotPassword(false);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to send reset email';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (resetEmailSent) {
+  if (emailSent) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 px-4 py-12">
         <Card className="w-full max-w-md text-center">
@@ -78,70 +68,15 @@ export function Login() {
           </div>
           <h1 className="text-2xl font-semibold text-slate-900">Check your email</h1>
           <p className="mt-2 text-sm text-slate-600">
-            We've sent a password reset link to {email}. Please check your inbox.
+            We've sent a verification link to {email}. Please verify your email to continue.
           </p>
           <Button
-            onClick={() => setResetEmailSent(false)}
+            onClick={() => navigate('/login')}
             variant="secondary"
             className="mt-6 w-full"
           >
             Back to sign in
           </Button>
-        </Card>
-      </div>
-    );
-  }
-
-  if (showForgotPassword) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 px-4 py-12">
-        <Card className="w-full max-w-md">
-          <div className="mb-6 text-center">
-            <div className="mb-4 flex justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-600">
-                <span className="text-2xl font-bold text-white">V</span>
-              </div>
-            </div>
-            <h1 className="text-2xl font-semibold text-slate-900">Reset your password</h1>
-            <p className="mt-2 text-sm text-slate-600">
-              Enter your email and we'll send you a link to reset your password.
-            </p>
-          </div>
-          <form onSubmit={handleForgotPassword} className="space-y-4">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Email</label>
-              <Input
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                type="email"
-                placeholder="name@company.com"
-                required
-              />
-            </div>
-            {error && (
-              <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-                <AlertCircle className="h-4 w-4" />
-                {error}
-              </div>
-            )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                'Send reset link'
-              )}
-            </Button>
-          </form>
-          <button
-            type="button"
-            onClick={() => setShowForgotPassword(false)}
-            className="mt-4 w-full text-center text-sm text-primary-600 hover:text-primary-700"
-          >
-            Back to sign in
-          </button>
         </Card>
       </div>
     );
@@ -156,13 +91,40 @@ export function Login() {
               <span className="text-2xl font-bold text-white">V</span>
             </div>
           </div>
-          <h1 className="text-2xl font-semibold text-slate-900">Sign in to VahanOne</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">Create your account</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Manage your fleet, track vehicles, and stay on top of renewals.
+            Start managing your fleet with VahanOne
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">Full Name</label>
+            <div className="relative">
+              <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
+                type="text"
+                placeholder="John Doe"
+                className="pl-10"
+                required
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">Company Name</label>
+            <div className="relative">
+              <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={companyName}
+                onChange={(event) => setCompanyName(event.target.value)}
+                type="text"
+                placeholder="Your Transport Company"
+                className="pl-10"
+              />
+            </div>
+          </div>
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">Email</label>
             <div className="relative">
@@ -188,17 +150,23 @@ export function Login() {
                 placeholder="••••••••"
                 className="pl-10"
                 required
+                minLength={6}
               />
             </div>
           </div>
-          <div className="flex items-center justify-end">
-            <button
-              type="button"
-              onClick={() => setShowForgotPassword(true)}
-              className="text-sm text-primary-600 hover:text-primary-700"
-            >
-              Forgot password?
-            </button>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">Confirm Password</label>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                type="password"
+                placeholder="••••••••"
+                className="pl-10"
+                required
+              />
+            </div>
           </div>
           {error && (
             <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">
@@ -210,10 +178,10 @@ export function Login() {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing in...
+                Creating account...
               </>
             ) : (
-              'Sign in'
+              'Create account'
             )}
           </Button>
         </form>
@@ -252,13 +220,13 @@ export function Login() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.09l3.66 2.84c.87-2.6 3.3-4.55 6.16-4.55z"
             />
           </svg>
-          Sign in with Google
+          Sign up with Google
         </Button>
 
         <p className="mt-6 text-center text-sm text-slate-600">
-          Don't have an account?{' '}
-          <Link to="/signup" className="font-medium text-primary-600 hover:text-primary-700">
-            Sign up
+          Already have an account?{' '}
+          <Link to="/login" className="font-medium text-primary-600 hover:text-primary-700">
+            Sign in
           </Link>
         </p>
       </Card>

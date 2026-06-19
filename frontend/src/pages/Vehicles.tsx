@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Search, Filter, Edit3, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Search, ListFilter as Filter, CreditCard as Edit3, Trash2, FileText, Eye } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
@@ -30,12 +31,15 @@ function expiryBadge(label: string, state: string) {
       ? 'bg-red-100 text-red-700'
       : state === 'warning'
       ? 'bg-amber-100 text-amber-700'
-      : 'bg-emerald-100 text-emerald-700';
+      : state === 'valid'
+      ? 'bg-emerald-100 text-emerald-700'
+      : 'bg-slate-100 text-slate-500';
 
   return <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${className}`}>{label}</span>;
 }
 
 export function Vehicles() {
+  const navigate = useNavigate();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
@@ -96,7 +100,7 @@ export function Vehicles() {
   }
 
   async function handleDelete(vehicleId: string) {
-    const confirmed = window.confirm('Remove this vehicle? This action is a soft delete if your backend supports it.');
+    const confirmed = window.confirm('Remove this vehicle? This action will soft delete the vehicle.');
     if (!confirmed) return;
 
     setLoading(true);
@@ -122,6 +126,7 @@ export function Vehicles() {
             setActiveVehicle(undefined);
             setModalOpen(true);
           }}
+          className="bg-primary-600 hover:bg-primary-700"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Vehicle
@@ -184,7 +189,7 @@ export function Vehicles() {
                     <th className="px-6 py-4 font-medium">Vehicle Number</th>
                     <th className="px-6 py-4 font-medium">Type</th>
                     <th className="px-6 py-4 font-medium">Make / Model</th>
-                    <th className="px-6 py-4 font-medium">Seating</th>
+                    <th className="px-6 py-4 font-medium">Year</th>
                     <th className="px-6 py-4 font-medium">Fuel</th>
                     <th className="px-6 py-4 font-medium">Compliance</th>
                     <th className="px-6 py-4 font-medium">EMI</th>
@@ -196,18 +201,25 @@ export function Vehicles() {
                   {filteredVehicles.map((vehicle) => (
                     <tr key={vehicle.id} className="hover:bg-slate-50">
                       <td className="px-6 py-4 font-medium text-slate-900">{vehicle.licensePlate}</td>
-                      <td className="px-6 py-4 text-slate-600">{vehicle.vehicleType}</td>
+                      <td className="px-6 py-4 text-slate-600">{vehicle.vehicleType || '-'}</td>
                       <td className="px-6 py-4 text-slate-600">{vehicle.make} {vehicle.model}</td>
-                      <td className="px-6 py-4 text-slate-600">{vehicle.seatingCapacity}</td>
-                      <td className="px-6 py-4 text-slate-600">{vehicle.fuelType}</td>
+                      <td className="px-6 py-4 text-slate-600">{vehicle.year || '-'}</td>
+                      <td className="px-6 py-4 text-slate-600">{vehicle.fuelType || '-'}</td>
                       <td className="px-6 py-4 space-y-2 text-slate-700">
+                        {vehicle.rcExpiry && expiryBadge('RC', getExpiryState(vehicle.rcExpiry))}
                         {expiryBadge('Insurance', getExpiryState(vehicle.insuranceExpiry))}
                         {expiryBadge('Permit', getExpiryState(vehicle.permitExpiry))}
                         {expiryBadge('FC', getExpiryState(vehicle.fcExpiry))}
                         {expiryBadge('Pollution', getExpiryState(vehicle.pollutionExpiry))}
-                        {expiryBadge('Road Tax', getExpiryState(vehicle.roadTaxExpiry))}
                       </td>
-                      <td className="px-6 py-4 text-slate-600">₹{vehicle.emiAmount.toLocaleString()}<span className="block text-xs text-slate-400">Due day {vehicle.emiDueDay}</span></td>
+                      <td className="px-6 py-4 text-slate-600">
+                        {vehicle.emiAmount > 0 ? (
+                          <>
+                            ₹{vehicle.emiAmount.toLocaleString()}
+                            <span className="block text-xs text-slate-400">Due day {vehicle.emiDueDay}</span>
+                          </>
+                        ) : '-'}
+                      </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${vehicle.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
                           {vehicle.status === 'active' ? 'Active' : 'Inactive'}
@@ -217,24 +229,32 @@ export function Vehicles() {
                         <div className="inline-flex items-center gap-2">
                           <Button
                             type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/vehicles/${vehicle.id}/documents`)}
+                            title="View Documents"
+                          >
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
                             variant="secondary"
-                            className="inline-flex items-center gap-2"
+                            size="sm"
                             onClick={() => {
                               setActiveVehicle(vehicle);
                               setModalOpen(true);
                             }}
                           >
                             <Edit3 className="h-4 w-4" />
-                            Edit
                           </Button>
                           <Button
                             type="button"
                             variant="ghost"
+                            size="sm"
                             className="text-red-600 hover:bg-red-50"
                             onClick={() => handleDelete(vehicle.id)}
                           >
                             <Trash2 className="h-4 w-4" />
-                            Delete
                           </Button>
                         </div>
                       </td>

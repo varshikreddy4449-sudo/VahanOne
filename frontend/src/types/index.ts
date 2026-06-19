@@ -7,6 +7,44 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  organizationId: string;
+  fullName?: string;
+  phone?: string;
+  avatarUrl?: string;
+  role: 'admin' | 'fleet_owner' | 'vehicle_owner';
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  isActive: boolean;
+}
+
+export interface CompanySettings {
+  id: string;
+  organizationId: string;
+  companyName: string;
+  logoUrl?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  phone?: string;
+  email?: string;
+  gstNumber?: string;
+  panNumber?: string;
+  website?: string;
+  bankName?: string;
+  bankAccountNumber?: string;
+  bankIfscCode?: string;
+  invoicePrefix: string;
+}
+
+export type UserRole = 'admin' | 'fleet_owner' | 'vehicle_owner';
+
 export interface ProfitSummary {
   totalRevenue: number;
   totalExpense: number;
@@ -54,9 +92,13 @@ export interface Vehicle {
   vehicleType: string;
   make: string;
   model: string;
+  year?: number;
   licensePlate: string;
   seatingCapacity: number;
   fuelType: string;
+  chassisNumber?: string;
+  engineNumber?: string;
+  rcExpiry?: string;
   insuranceExpiry: string;
   permitExpiry: string;
   fcExpiry: string;
@@ -65,6 +107,29 @@ export interface Vehicle {
   emiAmount: number;
   emiDueDay: number;
   status: 'active' | 'inactive';
+}
+
+export interface Driver {
+  id: string;
+  name: string;
+  phone?: string;
+  licenseNumber: string;
+  licenseExpiry?: string;
+  assignedVehicleId?: string;
+  status: 'active' | 'inactive';
+}
+
+export interface Document {
+  id: string;
+  vehicleId?: string;
+  documentType: string;
+  documentName: string;
+  fileUrl: string;
+  fileSize?: number;
+  mimeType?: string;
+  expiryDate?: string;
+  uploadedBy?: string;
+  createdAt: string;
 }
 
 export interface Booking {
@@ -78,6 +143,7 @@ export interface Booking {
   customerCity?: string;
   customerNotes?: string;
   vehicleId: string;
+  driverId?: string;
   pickupLocation: string;
   destination: string;
   startDate: string;
@@ -130,12 +196,14 @@ export interface Trip {
   status: 'pending' | 'ongoing' | 'completed' | 'cancelled';
 }
 
-export type ExpenseCategory = 'fuel' | 'toll' | 'parking' | 'maintenance' | 'other';
+export type ExpenseCategory = 'fuel' | 'toll' | 'parking' | 'maintenance' | 'other' | 'emi' | 'insurance' | 'service';
 
 export interface Expense {
   id: string;
-  tripId: string;
+  tripId?: string;
+  bookingId?: string;
   vehicleId: string;
+  category: ExpenseCategory;
   amount: number;
   fuelAmount: number;
   tollAmount: number;
@@ -147,6 +215,7 @@ export interface Expense {
   accommodationAmount: number;
   miscAmount: number;
   totalAmount: number;
+  description?: string;
   expenseDate: string;
   paidAt?: string;
 }
@@ -165,4 +234,42 @@ export interface Invoice {
   notes: string;
   total: number;
   status: InvoiceStatus;
+}
+
+export interface DashboardStats {
+  totalVehicles: number;
+  expiringDocuments: number;
+  upcomingRenewals: number;
+  activeDrivers: number;
+  monthlyExpenses: number;
+  monthlyRevenue: number;
+  monthlyProfit: number;
+}
+
+export interface RenewalItem {
+  vehicleId: string;
+  licensePlate: string;
+  type: string;
+  expiryDate: string;
+  status: 'valid' | 'warning' | 'expired';
+  daysRemaining: number;
+}
+
+export interface Reminder {
+  id: number;
+  status: 'pending' | 'read' | 'archived';
+  message?: string;
+  payload?: {
+    event_type?: string;
+    entity_type?: string;
+    entity_id?: number;
+    vehicle_id?: number;
+    vehicle_number?: string;
+    expiry_date?: string;
+    days_remaining?: number;
+    [key: string]: unknown;
+  };
+  reminderDate: string;
+  dueDate?: string;
+  createdAt: string;
 }

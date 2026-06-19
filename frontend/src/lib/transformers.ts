@@ -83,9 +83,12 @@ export function mapVehicleRequest(payload: Record<string, unknown>) {
     vehicle_type: payload.vehicleType,
     make: payload.make,
     model: payload.model,
+    year: payload.year,
     seating_capacity: payload.seatingCapacity,
     fuel_type: payload.fuelType,
-    registration_date: payload.registrationDate,
+    chassis_number: payload.chassisNumber,
+    engine_number: payload.engineNumber,
+    rc_expiry_date: payload.rcExpiry,
     insurance_expiry_date: payload.insuranceExpiry,
     permit_expiry_date: payload.permitExpiry,
     fc_expiry_date: payload.fcExpiry,
@@ -109,9 +112,13 @@ export function mapVehicleResponse(payload: Record<string, unknown>) {
     vehicleType: String(payload.vehicle_type ?? ''),
     make: String(payload.make ?? ''),
     model: String(payload.model ?? ''),
+    year: payload.year ? Number(payload.year) : undefined,
     licensePlate: String(payload.vehicle_number ?? ''),
     seatingCapacity: Number(payload.seating_capacity ?? 0),
     fuelType: String(payload.fuel_type ?? ''),
+    chassisNumber: payload.chassis_number ? String(payload.chassis_number) : undefined,
+    engineNumber: payload.engine_number ? String(payload.engine_number) : undefined,
+    rcExpiry: payload.rc_expiry_date ? String(payload.rc_expiry_date) : undefined,
     insuranceExpiry: String(payload.insurance_expiry_date ?? ''),
     permitExpiry: String(payload.permit_expiry_date ?? ''),
     fcExpiry: String(payload.fc_expiry_date ?? ''),
@@ -267,10 +274,23 @@ export function mapExpenseRequest(payload: Record<string, unknown>) {
 }
 
 export function mapExpenseResponse(payload: Record<string, unknown>) {
+  const rawCategory = String(payload.category ?? 'other');
+  const category: ExpenseCategory =
+    rawCategory === 'fuel' ? 'fuel'
+    : rawCategory === 'toll' ? 'toll'
+    : rawCategory === 'parking' ? 'parking'
+    : rawCategory === 'maintenance' ? 'maintenance'
+    : rawCategory === 'emi' ? 'emi'
+    : rawCategory === 'insurance' ? 'insurance'
+    : rawCategory === 'service' ? 'service'
+    : 'other';
+
   return {
     id: String(payload.id),
-    tripId: String(payload.trip_id),
+    tripId: payload.trip_id ? String(payload.trip_id) : undefined,
+    bookingId: payload.booking_id ? String(payload.booking_id) : undefined,
     vehicleId: String(payload.vehicle_id),
+    category,
     amount: Number(payload.amount ?? 0),
     fuelAmount: Number(payload.fuel_amount ?? 0),
     tollAmount: Number(payload.toll_amount ?? 0),
@@ -282,6 +302,7 @@ export function mapExpenseResponse(payload: Record<string, unknown>) {
     accommodationAmount: Number(payload.accommodation_amount ?? 0),
     miscAmount: Number(payload.misc_amount ?? 0),
     totalAmount: Number(payload.total_amount ?? 0),
+    description: payload.description ? String(payload.description) : undefined,
     expenseDate: String(payload.expense_date ?? ''),
   };
 }

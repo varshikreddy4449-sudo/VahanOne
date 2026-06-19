@@ -37,8 +37,8 @@ export function ExpenseForm({ open, expense, trips, bookings, vehicles, onClose,
 
   useEffect(() => {
     if (expense) {
-      setTripId(expense.tripId);
-      setBookingId('');
+      setTripId(expense.tripId || '');
+      setBookingId(expense.bookingId || '');
       setStartKm(0);
       setEndKm(0);
       setKmRate(0);
@@ -121,6 +121,7 @@ export function ExpenseForm({ open, expense, trips, bookings, vehicles, onClose,
       await onSave({
         tripId: targetTripId,
         vehicleId: selectedVehicle.id,
+        category: 'other',
         amount: tripAmount,
         fuelAmount: 0,
         tollAmount,
