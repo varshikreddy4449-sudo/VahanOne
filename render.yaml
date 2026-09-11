@@ -1,0 +1,29 @@
+﻿databases:
+  - name: vahanone-db
+    databaseName: vahanone_db
+    user: vahanone_user
+    plan: free
+
+services:
+  - type: web
+    name: vahanone-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vahanone-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: ENABLE_REMINDER_SCHEDULER
+        value: "true"
+      - key: REMINDER_SCHEDULER_INTERVAL_MINUTES
+        value: "60"
