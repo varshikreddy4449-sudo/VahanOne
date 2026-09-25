@@ -21,131 +21,31 @@ import { Sidebar } from './components/layout/Sidebar';
 import { useAuth } from './hooks/useAuth';
 
 function App() {
-  const { isAuthenticated } = useAuth();
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-slate-900">
       <div className="lg:flex">
-        {isAuthenticated && <Sidebar />}
+        <Sidebar />
         <main className="flex-1 p-4 pt-20 lg:p-8 lg:pt-8">
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/vehicles"
-              element={
-                <ProtectedRoute>
-                  <Vehicles />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/vehicles/:vehicleId/documents"
-              element={
-                <ProtectedRoute>
-                  <Documents />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/drivers"
-              element={
-                <ProtectedRoute>
-                  <Drivers />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/bookings"
-              element={
-                <ProtectedRoute>
-                  <Bookings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/calendar"
-              element={
-                <ProtectedRoute>
-                  <Calendar />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dispatch"
-              element={
-                <ProtectedRoute>
-                  <Dispatch />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/maintenance"
-              element={
-                <ProtectedRoute>
-                  <Maintenance />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/expenses"
-              element={
-                <ProtectedRoute>
-                  <Expenses />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profit"
-              element={
-                <ProtectedRoute>
-                  <Profit />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/invoices"
-              element={
-                <ProtectedRoute>
-                  <Invoices />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/renewals"
-              element={
-                <ProtectedRoute>
-                  <Renewals />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/reports"
-              element={
-                <ProtectedRoute>
-                  <Reports />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
-            <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
+            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/signup" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/auth/callback" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/vehicles" element={<Vehicles />} />
+            <Route path="/vehicles/:vehicleId/documents" element={<Documents />} />
+            <Route path="/drivers" element={<Drivers />} />
+            <Route path="/bookings" element={<Bookings />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/dispatch" element={<Dispatch />} />
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="/expenses" element={<Expenses />} />
+            <Route path="/profit" element={<Profit />} />
+            <Route path="/invoices" element={<Invoices />} />
+            <Route path="/renewals" element={<Renewals />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </main>
       </div>
